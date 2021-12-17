@@ -1,0 +1,11 @@
+{
+  "name": "Movie",
+  "namespace": "com.example.kafkademoissue.data",
+  "type": "record",
+  "fields": [
+    {
+      "name": "title",
+      "type": "string"
+    }
+  ]
+}

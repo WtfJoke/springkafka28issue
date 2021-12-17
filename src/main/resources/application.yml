@@ -1,0 +1,31 @@
+movie:
+  topic: "PUBLISHED_MOVIES"
+
+spring:
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    properties:
+      schema.registry.url: http://localhost:8081
+    consumer:
+      group-id: random_group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      value-deserializer: 'org.springframework.kafka.support.serializer.ErrorHandlingDeserializer'
+      key-deserializer: 'org.springframework.kafka.support.serializer.ErrorHandlingDeserializer'
+      properties:
+        specific.avro.reader: "true"
+        spring.deserializer.key.delegate.class: 'org.apache.kafka.common.serialization.StringDeserializer'
+        spring.deserializer.value.delegate.class: 'io.confluent.kafka.serializers.KafkaAvroDeserializer'
+    producer:
+      value-serializer: 'io.confluent.kafka.serializers.KafkaAvroSerializer'
+      key-serializer: 'org.apache.kafka.common.serialization.StringSerializer'
+      properties:
+        "[reconnect.backoff.ms]": 1000
+        "[reconnect.backoff.max.ms]": 5000
+        "[max.in.flight.requests.per.connection]": 1
+        "[retry.backoff.ms]": 1000
+        "[batch.size]": 0
+        "[linger.ms]": 0
+        "[max.block.ms]": 6000
+        retries: 3
+        acks: "all"
