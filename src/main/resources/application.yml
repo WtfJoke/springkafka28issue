@@ -1,5 +1,7 @@
 movie:
   topic: "PUBLISHED_MOVIES"
+show:
+  topic: "PUBLISHED_SHOWS"
 
 spring:
   kafka:

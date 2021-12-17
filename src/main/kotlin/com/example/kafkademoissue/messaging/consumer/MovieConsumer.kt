@@ -1,4 +1,4 @@
-package com.example.kafkademoissue.messaging
+package com.example.kafkademoissue.messaging.consumer
 
 import com.example.kafkademoissue.data.Movie
 import org.springframework.kafka.annotation.KafkaListener

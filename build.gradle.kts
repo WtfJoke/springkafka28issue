@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 object DependencyVersions {
-	const val Confluent = "6.1.1"
+	const val Confluent = "7.0.1"
 	const val Avro = "1.11.0"
 }
 
