@@ -7,7 +7,7 @@ object DependencyVersions {
 }
 
 plugins {
-	id("org.springframework.boot") version "2.6.1"
+	id("org.springframework.boot") version "2.5.7"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("com.github.davidmc24.gradle.plugin.avro") version "1.3.0"
 	kotlin("jvm") version "1.6.0"
