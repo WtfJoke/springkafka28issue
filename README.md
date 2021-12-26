@@ -10,3 +10,5 @@
 ### Bug Info
 Posting a show will result in an exception in Spring Boot 2.6.1 (Spring Kafka 2.8). 
 Whereas posting a show in Spring Boot 2.5.7 (Spring Kafka 2.7.9) works as expected.
+
+https://github.com/spring-projects/spring-kafka/issues/2050
