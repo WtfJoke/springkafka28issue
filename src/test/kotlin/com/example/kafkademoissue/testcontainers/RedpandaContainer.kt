@@ -21,7 +21,7 @@ class RedpandaContainer : GenericContainer<RedpandaContainer?>("vectorized/redpa
         command += "/usr/bin/rpk redpanda start --overprovisioned --smp 1 --reserve-memory 0M --node-id 0 "
         command += "--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 "
         command += "--pandaproxy-addr 0.0.0.0:8084 "
-        command += "--advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://" + host.toString() + ":" + getMappedPort(9092)
+        command += "--advertise-kafka-addr PLAINTEXT://" + host.toString() + ":29092,OUTSIDE://" + host.toString() + ":" + getMappedPort(9092)
         copyFileToContainer(
             Transferable.of(command.toByteArray(), 511),
             STARTER_SCRIPT
