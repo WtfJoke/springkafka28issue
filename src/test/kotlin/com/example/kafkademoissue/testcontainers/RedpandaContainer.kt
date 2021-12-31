@@ -6,7 +6,7 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.images.builder.Transferable
 
 
-class RedpandaContainer : GenericContainer<RedpandaContainer?>("vectorized/redpanda:v21.10.1") {
+class RedpandaContainer : GenericContainer<RedpandaContainer?>("vectorized/redpanda:v21.11.2") {
     init {
         withExposedPorts(9092, 8081, 8084, 29092)
         withCreateContainerCmdModifier { cmd -> cmd.withEntrypoint("sh") }
