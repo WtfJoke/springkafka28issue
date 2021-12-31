@@ -1,6 +1,9 @@
 package com.example.kafkademoissue.messaging
 
 import com.example.kafkademoissue.data.Movie
+import com.example.kafkademoissue.data.Show
+import com.example.kafkademoissue.testcontainers.RedpandaContainer
+import com.example.kafkademoissue.testcontainers.StartRedPandaBeforeAllExtension
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -11,16 +14,18 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.kafka.core.KafkaTemplate
 import org.testcontainers.shaded.org.awaitility.Awaitility.await
-import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 
-@ExtendWith(StartKafkaContainerBeforeAllExtension::class)
+@ExtendWith(StartRedPandaBeforeAllExtension::class)
 @SpringBootTest
 class MovieIntegrationTest {
 
     @Autowired
     private lateinit var producer: KafkaTemplate<String, Movie>
+
+    @Autowired
+    private lateinit var showProducer: KafkaTemplate<String, Show>
 
     @Autowired
     private lateinit var kafkaProperties: KafkaProperties
@@ -31,23 +36,27 @@ class MovieIntegrationTest {
     @Test
     fun givenKafkaDockerContainer_whenSendingtoSimpleProducer_thenMessageIsSent() {
         val send = producer.send(topic, Movie("hiho"))
-//        val consumer = createKafkaConsumer()
+        await().atMost(5, TimeUnit.SECONDS).until { send.isDone };
+        val result = send.get()
+        assertThat(result).isNotNull()
+        assertThat(result.producerRecord.value().title).isEqualTo("hiho")
+    }
+
+    @Test
+    fun givenKafkaDockerContainer_whenSendingtoSimpleShowProducer_thenMessageIsSent() {
+        val send = showProducer.send(topic, Show("hiho"))
 
         await().atMost(5, TimeUnit.SECONDS).until { send.isDone };
         val result = send.get()
         assertThat(result).isNotNull()
         assertThat(result.producerRecord.value().title).isEqualTo("hiho")
-
-//        val poll = consumer.poll(Duration.ofSeconds(20))
-//        assertThat(poll.count()).isEqualTo(1)
-//        val records = poll.records(topic)
-//        val record = records.first()
-//        assertThat(record.value().title).isEqualTo("hiho")
     }
 
-    fun createKafkaConsumer(): KafkaConsumer<String, Movie> {
-        val kafkaConsumer = KafkaConsumer<String, Movie>(kafkaProperties.buildConsumerProperties());
-        kafkaConsumer.subscribe(listOf(topic))
-        return kafkaConsumer;
+    @Test
+    fun startRedpanda(){
+        val container = RedpandaContainer()
+
+        container.start()
     }
+
 }
