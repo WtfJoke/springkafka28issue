@@ -6,37 +6,39 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.images.builder.Transferable
 
 
-class RedpandaContainer : GenericContainer<RedpandaContainer?>("vectorized/redpanda:v21.11.2") {
+class RedpandaContainer(version: String) : GenericContainer<RedpandaContainer>("vectorized/redpanda:${version}") {
     init {
-        withExposedPorts(9092, 8081, 8084, 29092)
+        withExposedPorts(9092, 8081)
         withCreateContainerCmdModifier { cmd -> cmd.withEntrypoint("sh") }
-        withCommand("-c", "while [ ! -f " + STARTER_SCRIPT + " ]; do sleep 0.1; done; " + STARTER_SCRIPT)
+        withCommand("-c", "while [ ! -f $STARTER_SCRIPT ]; do sleep 0.1; done; $STARTER_SCRIPT")
         waitingFor(Wait.forLogMessage(".*Successfully started Redpanda!.*", 1))
+    }
+
+    companion object {
+        private const val STARTER_SCRIPT = "/startRedpanda.sh"
     }
 
 
     override fun containerIsStarting(containerInfo: InspectContainerResponse?) {
         super.containerIsStarting(containerInfo)
-        var command = "#!/bin/bash\n"
-        command += "/usr/bin/rpk redpanda start --overprovisioned --smp 1 --reserve-memory 0M --node-id 0 "
-        command += "--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 "
-        command += "--pandaproxy-addr 0.0.0.0:8084 "
-        command += "--advertise-kafka-addr PLAINTEXT://" + host.toString() + ":29092,OUTSIDE://" + host.toString() + ":" + getMappedPort(9092)
+        val command = """
+            #!/bin/bash
+            /usr/bin/rpk redpanda start --overprovisioned --smp 1 --reserve-memory 0M --node-id 0 --check=false \
+            --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 \
+            --pandaproxy-addr 0.0.0.0:8084 \
+            --advertise-kafka-addr PLAINTEXT://${host}:29092,OUTSIDE://${host}:${getMappedPort(9092)}
+        """.trimIndent()
         copyFileToContainer(
             Transferable.of(command.toByteArray(), 511),
             STARTER_SCRIPT
         )
     }
 
-    companion object {
-        private const val STARTER_SCRIPT = "/testcontainers_start.sh"
-    }
-
     fun getSchemaRegistryUrl(): String {
-        return "http://${this.host}:${this.getMappedPort(8081)}"
+        return "http://${host}:${getMappedPort(8081)}"
     }
 
-    fun getBootstrapServers(): String? {
-        return String.format("PLAINTEXT://%s:%s", host, getMappedPort(9092))
+    fun getBootstrapServers(): String {
+        return "PLAINTEXT://${host}:${getMappedPort(9092)}"
     }
 }

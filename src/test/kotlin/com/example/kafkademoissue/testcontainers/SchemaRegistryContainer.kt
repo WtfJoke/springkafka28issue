@@ -11,11 +11,11 @@ class SchemaRegistryContainer(version: String) : GenericContainer<SchemaRegistry
     }
 
     fun withKafka(kafka: KafkaContainer): SchemaRegistryContainer {
-        return withKafka(kafka.network, kafka.networkAliases[0].toString() + ":9092")
+        return withKafka(kafka.network!!, kafka.networkAliases[0].toString() + ":9092")
     }
 
-    private fun withKafka(network: Network?, bootstrapServers: String): SchemaRegistryContainer {
-        withNetwork(network!!)
+    private fun withKafka(network: Network, bootstrapServers: String): SchemaRegistryContainer {
+        withNetwork(network)
         withEnv("SCHEMA_REGISTRY_HOST_NAME", "schema-registry")
         withEnv("SCHEMA_REGISTRY_LISTENERS", "http://0.0.0.0:8081")
         withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", "PLAINTEXT://$bootstrapServers")
@@ -23,6 +23,6 @@ class SchemaRegistryContainer(version: String) : GenericContainer<SchemaRegistry
     }
 
     fun getSchemaRegistryUrl(): String {
-        return "http://${this.containerIpAddress}:${this.getMappedPort(8081)}"
+        return "http://${containerIpAddress}:${getMappedPort(8081)}"
     }
 }

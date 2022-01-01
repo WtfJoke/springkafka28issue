@@ -1,6 +1,5 @@
-package com.example.kafkademoissue.messaging
+package com.example.kafkademoissue.testcontainers
 
-import com.example.kafkademoissue.testcontainers.SchemaRegistryContainer
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.testcontainers.containers.KafkaContainer
@@ -12,7 +11,7 @@ import org.testcontainers.utility.DockerImageName
 @Testcontainers
 class StartKafkaContainerBeforeAllExtension : BeforeAllCallback {
     companion object {
-        private const val CONFLUENT_VERSION = "6.2.2"
+        private const val CONFLUENT_VERSION = "7.0.1"
 
         @Container
         val kafkaContainer: KafkaContainer = KafkaContainer(
@@ -20,16 +19,16 @@ class StartKafkaContainerBeforeAllExtension : BeforeAllCallback {
         ).withNetwork(Network.newNetwork())
 
         @Container
-        val schemaRegistryContainer: SchemaRegistryContainer = SchemaRegistryContainer(CONFLUENT_VERSION).withKafka(kafkaContainer)
+        val schemaRegistryContainer: SchemaRegistryContainer = SchemaRegistryContainer(CONFLUENT_VERSION).withKafka(
+            kafkaContainer
+        )
     }
 
     override fun beforeAll(context: ExtensionContext?) {
         kafkaContainer.start()
         schemaRegistryContainer.start()
 
-        val schemaRegistryUrl = schemaRegistryContainer.getSchemaRegistryUrl()
-
         System.setProperty("spring.kafka.bootstrap-servers", kafkaContainer.bootstrapServers)
-        System.setProperty("spring.kafka.properties.schema.registry.url", schemaRegistryUrl)
+        System.setProperty("spring.kafka.properties.schema.registry.url", schemaRegistryContainer.getSchemaRegistryUrl())
     }
 }
